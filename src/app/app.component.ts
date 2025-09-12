@@ -13,12 +13,13 @@ import { mailOutline, mailSharp, paperPlaneOutline, paperPlaneSharp, heartOutlin
 })
 export class AppComponent {
   public appPages = [
-    { title: 'Inbox', url: '/folder/inbox', icon: 'mail' },
-    { title: 'Outbox', url: '/folder/outbox', icon: 'paper-plane' },
-    { title: 'Favorites', url: '/folder/favorites', icon: 'heart' },
-    { title: 'Archived', url: '/folder/archived', icon: 'archive' },
-    { title: 'Trash', url: '/folder/trash', icon: 'trash' },
-    { title: 'Spam', url: '/folder/spam', icon: 'warning' },
+    { title: 'Inbox', url: '/page/nomeModulo1/inbox', icon: 'mail' },
+    { title: 'Outbox', url: '/page/nomeModulo2/outbox', icon: 'paper-plane' },
+    { title: 'Favorites', url: '/page/nomeModulo3/favorites', icon: 'heart' },
+    { title: 'Archived', url: '/page/nomeModulo4/archived', icon: 'archive' },
+    { title: 'Trash', url: '/page/nomeModulo5/trash', icon: 'trash' },
+    { title: 'Spam', url: '/page/folder/spam', icon: 'warning' },
+    { title: 'Remédios', url: '/page/teste/remedios', icon: 'health' },
   ];
   public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
   constructor() {
