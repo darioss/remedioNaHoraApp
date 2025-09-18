@@ -1,28 +1,59 @@
-
 import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
-import { IonApp, IonSplitPane, IonMenu, IonContent, IonList, IonListHeader, IonNote, IonMenuToggle, IonItem, IonIcon, IonLabel, IonRouterOutlet, IonRouterLink } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import { mailOutline, mailSharp, paperPlaneOutline, paperPlaneSharp, heartOutline, heartSharp, archiveOutline, archiveSharp, trashOutline, trashSharp, warningOutline, warningSharp, bookmarkOutline, bookmarkSharp } from 'ionicons/icons';
+import { CommonModule, NgIf, NgFor } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
+import { RouterModule, Router } from '@angular/router';
+import { AuthService, User } from './services/auth.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
-  styleUrls: ['app.component.scss'],
-  imports: [RouterLink, RouterLinkActive, IonApp, IonSplitPane, IonMenu, IonContent, IonList, IonListHeader, IonNote, IonMenuToggle, IonItem, IonIcon, IonLabel, IonRouterLink, IonRouterOutlet],
+  standalone: true,
+  imports: [CommonModule, IonicModule, RouterModule, NgIf, NgFor],
 })
 export class AppComponent {
-  public appPages = [
-    { title: 'Inbox', url: '/page/nomeModulo1/inbox', icon: 'mail' },
-    { title: 'Outbox', url: '/page/nomeModulo2/outbox', icon: 'paper-plane' },
-    { title: 'Favorites', url: '/page/nomeModulo3/favorites', icon: 'heart' },
-    { title: 'Archived', url: '/page/nomeModulo4/archived', icon: 'archive' },
-    { title: 'Trash', url: '/page/nomeModulo5/trash', icon: 'trash' },
-    { title: 'Spam', url: '/page/folder/spam', icon: 'warning' },
-    { title: 'Remédios', url: '/page/teste/remedios', icon: 'health' },
-  ];
-  public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
-  constructor() {
-    addIcons({ mailOutline, mailSharp, paperPlaneOutline, paperPlaneSharp, heartOutline, heartSharp, archiveOutline, archiveSharp, trashOutline, trashSharp, warningOutline, warningSharp, bookmarkOutline, bookmarkSharp });
+  currentUser$: Observable<User | null>;
+  appPages: { title: string; url: string; icon: string }[] = [];
+
+  constructor(private auth: AuthService, private router: Router) {
+    this.currentUser$ = this.auth.currentUser$;
+
+    this.currentUser$.subscribe((user) => {
+      if (!user) {
+        this.appPages = [];
+        return;
+      }
+
+      if (user.role.toLowerCase() === 'admin') {
+        this.appPages = [
+          { title: 'Cuidador', url: '/modulo/cuidador/dashboard', icon: 'people' },
+          { title: 'Farmácia', url: '/modulo/farmacia/home', icon: 'medkit' },
+          { title: 'Médico', url: '/modulo/medico/inbox', icon: 'person' },
+          { title: 'Paciente', url: '/modulo/paciente/welcome', icon: 'heart' },
+        ];
+      } else {
+        switch (user.role.toLowerCase()) {
+          case 'cuidador':
+            this.appPages = [{ title: 'Cuidador', url: '/modulo/cuidador/dashboard', icon: 'people' }];
+            break;
+          case 'farmacia':
+            this.appPages = [{ title: 'Farmácia', url: '/modulo/farmacia/home', icon: 'medkit' }];
+            break;
+          case 'medico':
+            this.appPages = [{ title: 'Médico', url: '/modulo/medico/inbox', icon: 'person' }];
+            break;
+          case 'paciente':
+            this.appPages = [{ title: 'Paciente', url: '/modulo/paciente/welcome', icon: 'heart' }];
+            break;
+          default:
+            this.appPages = [];
+        }
+      }
+    });
+  }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigateByUrl('/login');
   }
 }

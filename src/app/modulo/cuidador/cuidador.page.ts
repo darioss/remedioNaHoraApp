@@ -4,17 +4,17 @@ import { IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent 
 import { IonicModule } from '@ionic/angular';
 
 @Component({
-  selector: 'app-teste',
-  templateUrl: './teste.page.html',
-  styleUrls: ['./teste.page.scss'],
+  selector: 'app-cuidador',
+  templateUrl: './cuidador.page.html',
+  styleUrls: ['./cuidador.page.scss'],
   imports: [IonicModule],
 })
-export class TestePage implements OnInit {
-  public teste!: string;
+export class CuidadorPage implements OnInit {
+  public cuidador!: string;
   private activatedRoute = inject(ActivatedRoute);
   constructor() {}
 
   ngOnInit() {
-    this.teste = this.activatedRoute.snapshot.paramMap.get('id') as string;
+    this.cuidador = this.activatedRoute.snapshot.paramMap.get('id') as string;
   }
 }
