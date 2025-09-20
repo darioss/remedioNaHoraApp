@@ -1,71 +1,110 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
 
 export type UserRole = 'Admin' | 'Cuidador' | 'Farmacia' | 'Medico' | 'Paciente';
 
 export interface User {
   email: string;
+  username: string;
   role: UserRole;
 }
+
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
 
-  private readonly apiUrl = 'http://localhost:5079/api/Auth/login';
+  private readonly apiBase = 'http://localhost:8001/api';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
+  /** LOGIN */
   async login(credentials: { email: string; password: string }): Promise<User> {
-    // Faz o POST
     const resp = await firstValueFrom(
-      this.http.post<{ token: string; user: { username: string; role: string } }>(
-        this.apiUrl,
-        { username: credentials.email, password: credentials.password }
+      this.http.post<{ token: string; user: { email: string; username: string; role: string } }>(
+        `${this.apiBase}/login`,
+        {
+          email: credentials.email,
+          password: credentials.password
+        }
       )
     );
 
-    if (!resp || !resp.user || !resp.user.username || !resp.user.role) {
+    if (!resp || !resp.user) {
       throw new Error('Resposta inválida do servidor');
     }
 
-    const validRoles: UserRole[] = ['Admin', 'Cuidador', 'Farmacia', 'Medico', 'Paciente'];
-    if (!validRoles.includes(resp.user.role as UserRole)) {
-      throw new Error('Role inválido retornado pelo servidor');
-    }
-
     const user: User = {
-      email: resp.user.username, // username do backend → email no frontend
+      email: resp.user.email,
+      username: resp.user.username,
       role: resp.user.role as UserRole,
     };
 
-    // Armazena o token se quiser usar futuramente
+    // Guarda token para chamadas futuras
     localStorage.setItem('opaqueToken', resp.token);
 
-    // Atualiza observable
     this.currentUserSubject.next(user);
-
     return user;
   }
 
-  logout() {
-    this.currentUserSubject.next(null);
+  /** LOGOUT */
+  async logout(): Promise<void> {
+    const token = localStorage.getItem('opaqueToken');
+    if (token) {
+      await firstValueFrom(
+        this.http.post(`${this.apiBase}/logout`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      );
+    }
     localStorage.removeItem('opaqueToken');
+    this.currentUserSubject.next(null);
   }
 
-  async register(data: { email: string; password: string; role?: string }): Promise<User> {
-    console.log('Usuário registrado:', data);
+  /** REGISTER */
+  async register(data: { name: string; username: string; email: string; password: string; role: string }): Promise<User> {
+    const resp = await firstValueFrom(
+      this.http.post<{ token: string; user: { email: string; username: string; role: string } }>(
+        `${this.apiBase}/register`,
+        {
+          name: data.name,
+          username: data.username,
+          email: data.email,
+          password: data.password,
+          password_confirmation: data.password,
+          role: data.role
+        }
+      )
+    );
 
     const user: User = {
-      email: data.email,
-      role: (data.role as User['role']) || 'user',
+      email: resp.user.email,
+      username: resp.user.username,
+      role: resp.user.role as UserRole,
     };
 
+    localStorage.setItem('opaqueToken', resp.token);
     this.currentUserSubject.next(user);
     return user;
+  }
+
+  /** REFRESH TOKEN */
+  async refreshToken(): Promise<string> {
+    const token = localStorage.getItem('opaqueToken');
+    if (!token) throw new Error('Nenhum token encontrado');
+
+    const resp = await firstValueFrom(
+      this.http.post<{ token: string }>(
+        `${this.apiBase}/refresh`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+    );
+
+    localStorage.setItem('opaqueToken', resp.token);
+    return resp.token;
   }
 
 

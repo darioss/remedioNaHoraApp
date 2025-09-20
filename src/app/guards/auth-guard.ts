@@ -23,13 +23,9 @@ export class AuthGuard implements CanActivate {
           return this.router.createUrlTree(['/login']);
         }
 
-        // Admin: acesso a todos os módulos → redireciona para dashboard geral
-        if (user.role === 'Admin') {
-          return this.router.createUrlTree(['/modulo/dashboard']); 
-        }
-
-        // Outros roles: direciona para módulo específico
         switch (user.role) {
+          case 'Admin':
+            return this.router.createUrlTree(['/modulo/dashboard']);
           case 'Cuidador':
             return this.router.createUrlTree(['/modulo/cuidador/dashboard']);
           case 'Farmacia':
