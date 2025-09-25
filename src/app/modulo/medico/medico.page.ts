@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
   selector: 'app-medico',
   templateUrl: './medico.page.html',
   styleUrls: ['./medico.page.scss'],
+  standalone: true,
   imports: [IonicModule],
 })
 export class MedicoPage implements OnInit {

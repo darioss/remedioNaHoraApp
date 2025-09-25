@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
   selector: 'app-paciente',
   templateUrl: './paciente.page.html',
   styleUrls: ['./paciente.page.scss'],
+  standalone: true,
   imports: [IonicModule],
 })
 export class PacientePage implements OnInit {

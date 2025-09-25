@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
   selector: 'app-farmacia',
   templateUrl: './farmacia.page.html',
   styleUrls: ['./farmacia.page.scss'],
+  standalone: true,
   imports: [IonicModule],
 })
 export class FarmaciaPage implements OnInit {

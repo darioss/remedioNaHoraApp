@@ -16,7 +16,7 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
 
-  private readonly apiBase = 'http://localhost:8001/api';
+  private readonly apiBase = 'https://dariosilva.net/cdg/api';
 
   constructor(private http: HttpClient) {}
 
